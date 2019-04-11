@@ -137,14 +137,19 @@ namespace WordClock
             timerMain.Tick += TimerMain_Tick;
             timerMain.Start();
         }
-        
 
-        protected override void OnPaint(PaintEventArgs e)
+
+        protected override void OnShown(EventArgs e)
         {
-            base.OnPaint(e);
-            text.DrawString($"请您稍候... ...", fontClock, brush, center, formatCenter);
+            base.OnShown(e);
+            var t = DateTime.Now;
+            new Action(() => DrawToImage(t, 0)).BeginInvoke(
+                o =>
+                {
+                    this.Invoke(new Action(() => text.DrawImage(img, 0, 0)));
+                    new Action(() => DrawToImage(t.AddSeconds(1), 0)).BeginInvoke(null, null);
+                }, null);
         }
-        
         
         void DrawToImage(DateTime time, float angleOffset)
         {
