@@ -29,14 +29,40 @@ namespace WordClock
             { 55, "五十五" }, { 56, "五十六" }, { 57, "五十七" }, { 58, "五十八" }, { 59, "五十九" },
             { 60, "六十" },
         };
+        
+        Graphics text;
+        Brush brush;
+        Brush brushRed;
+        Brush brushBackColor;
+        Font font;
+        Font fontClock;        
+        Bitmap img;        
+        Pen pen;
+        StringFormat formatFar;
+        StringFormat formatNear;
+        StringFormat formatCenter;
+        PointF center;
+        int iof = 0;
 
-        SpaceCalc _sc;
+        void Exit()
+        {
+            timerMain.Stop();
 
+            text.Dispose();
+            brush.Dispose();
+            brushRed.Dispose();
+            brushBackColor.Dispose();
+            font.Dispose();
+            fontClock.Dispose();
+            img.Dispose();
+            pen.Dispose();
+
+            Close();
+        }
 
         public ScreenSaver()
         {
             InitializeComponent();
-
         }
 
 
@@ -73,46 +99,26 @@ namespace WordClock
             this.BackColor = Color.Transparent;
         }
 
-        Graphics text;
-        Brush brush;
-        Brush brushRed;
-        Brush brushBackColor;
-        Font font;
-        Font fontClock;
-
-        Pen _pen;
-        Bitmap img;
-
-
-        Pen p1;
-        StringFormat formatFar;
-        StringFormat formatNear;
-        StringFormat formatCenter;
-        PointF center;
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
 
-            _sc = new SpaceCalc(Width, Height);
-            
             //创建一个图形，该图形绘制在pictureBox1上
             text = this.CreateGraphics();
 
             //创建一个画刷，颜色是纯色
             brush = new SolidBrush(Color.FromArgb(0, 255, 255));
             brushRed = new SolidBrush(Color.FromArgb(255, 0, 0));
+            brushBackColor = new SolidBrush(Color.Black);
 
-             brushBackColor = new SolidBrush(Color.Black);
             //选择字体、字号、风格
             font = new Font("Adobe Gothic Std", 18f, FontStyle.Regular);
             fontClock = new Font("Adobe Gothic Std", 35f, FontStyle.Regular);
-
-            _pen = new Pen(brush);
+            
             img = new Bitmap(Width, Height);
 
-
-            p1 = new Pen(Color.Green, 3);
+            pen = new Pen(Color.Green, 3);
 
             formatNear = new StringFormat();
             //指定字符串的水平对齐方式
@@ -140,19 +146,15 @@ namespace WordClock
             TimerMain_Tick(this, e);
         }
 
-        int iof = 0;
 
         void DrawToImage(DateTime time)
         {
             Graphics gBmp = Graphics.FromImage(img);
 
             gBmp.FillRectangle(brushBackColor, 0, 0, Width, Height);
-
-
             //在位置（150，200）处绘制文字
-            text.DrawString(time.ToString("HH:mm:ss"), fontClock, brush, Width / 2, Height / 2, formatCenter);
-
-
+            gBmp.DrawString(time.ToString("HH:mm:ss"), fontClock, brush, Width / 2, Height / 2, formatCenter);
+            
             float r = Height / 1.5f;
             float minr = 150;
             float dr = (r - minr) / 44;
@@ -168,14 +170,15 @@ namespace WordClock
             r -= dr * 9;
             DrawCircle(gBmp, r, 24, "时", false, true, time.Hour);
 
+            var dayNum = DateTime.DaysInMonth(time.Year, time.Month);
             r -= dr * 8;
-            DrawCircle(gBmp, r, 31, "日", false, false, time.Day);
+            DrawCircle(gBmp, r, dayNum, "日", false, false, time.Day);
 
             r -= dr * 6;
             DrawCircle(gBmp, r, 12, "月", false, false, time.Month);
 
             r -= dr * 3;
-            DrawCircle(gBmp, r, 7,  "周", true, false, (int)time.DayOfWeek);
+            DrawCircle(gBmp, r, 7, (int)time.DayOfWeek);
         }
 
         private void DrawCircle(Graphics gBmp, float r, int num, string tip)
@@ -183,11 +186,10 @@ namespace WordClock
             var offset = new SizeF(r, 0);
             var ang = 360f / num;
             gBmp.DrawString($"{numberMap[iof % num]}{tip}", font, brushRed, center + offset, formatNear);
-            
+
+            gBmp.ResetTransform();
             for (int i = 1; i < num; i++)
             {
-                var tat = ang * i / 180;
-
                 //旋转角度和平移
                 Matrix mtxRotate = gBmp.Transform;
                 mtxRotate.RotateAt(ang, center);
@@ -211,10 +213,10 @@ namespace WordClock
 
             var f = formatNear;
 
-            var text = $"{numberMap[(i + curIdx) % num + fix]}{tip}";
+            var text = $"{numberMap[(i + curIdx) % num]}{tip}";
             if (priTip)
             {
-                text = $"{tip}{numberMap[(i + curIdx) % num + fix]}";
+                text = $"{tip}{numberMap[(i + curIdx) % num]}";
                 f = formatFar;
             }
 
@@ -231,8 +233,6 @@ namespace WordClock
 
             for (; i < num; i++)
             {
-                var tat = ang * i / 180;
-
                 //旋转角度和平移
                 Matrix mtxRotate = gBmp.Transform;
                 mtxRotate.RotateAt(ang, center);
@@ -254,22 +254,13 @@ namespace WordClock
             var ori = numberMap[7];
             numberMap[7] = "日";
 
-            var text = $"周{numberMap[(i + curIdx) % num + fix]}";
-
-            if (text == "周七")
-            {
-                text = "周日";
-            }
+            var text = $"周{numberMap[(i + curIdx) % num]}";
 
             gBmp.ResetTransform();
             gBmp.DrawString(text, font, brushRed, center + offset, f);
-
-            i++;
-
-            for (; i < num; i++)
+            
+            for (i++; i < num; i++)
             {
-                var tat = ang * i / 180;
-
                 //旋转角度和平移
                 Matrix mtxRotate = gBmp.Transform;
                 mtxRotate.RotateAt(ang, center);
@@ -287,38 +278,22 @@ namespace WordClock
 
             var action = new Action(() => DrawToImage(time.AddSeconds(1)));
             action.BeginInvoke(null, null);
-
         }
-
-        bool stoped = false;
+        
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            if (e.KeyCode == Keys.Space)
-            {
-                if (!stoped)
-                {
-                    timerMain.Stop();
-                }
-                else
-                {
-                    timerMain.Start();
-                }
-                stoped = !stoped;
-            }
-            else if (e.KeyCode == Keys.Escape)
-            {
-                Exit();
-            }
+            Exit();
         }
-
-        void Exit()
+        
+        protected override void OnMouseDown(MouseEventArgs e)
         {
-            timerMain.Stop();
-            Close();
+            base.OnMouseDown(e);
+            Exit();
         }
 
-        void Refrences()
+
+        void RefrencesCode()
         {
             var img = new Bitmap(500, 500);
 
