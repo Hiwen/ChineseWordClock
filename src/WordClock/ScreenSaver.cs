@@ -104,7 +104,6 @@ namespace WordClock
         {
             base.OnLoad(e);
 
-            //创建一个图形，该图形绘制在pictureBox1上
             text = this.CreateGraphics();
 
             //创建一个画刷，颜色是纯色
@@ -138,16 +137,16 @@ namespace WordClock
             timerMain.Tick += TimerMain_Tick;
             timerMain.Start();
         }
+        
 
-        protected override void OnShown(EventArgs e)
+        protected override void OnPaint(PaintEventArgs e)
         {
-            base.OnShown(e);
-            DrawToImage(DateTime.Now.AddSeconds(1));
-            TimerMain_Tick(this, e);
+            base.OnPaint(e);
+            text.DrawString($"请您稍候... ...", fontClock, brush, center, formatCenter);
         }
-
-
-        void DrawToImage(DateTime time)
+        
+        
+        void DrawToImage(DateTime time, float angleOffset)
         {
             Graphics gBmp = Graphics.FromImage(img);
 
@@ -162,7 +161,7 @@ namespace WordClock
             iof++;
             
             r -= dr * 8;
-            DrawCircle(gBmp, r, 60, "秒");
+            DrawCircle(gBmp, r, 60, "秒", angleOffset, time.Second);
 
             r -= dr * 9;
             DrawCircle(gBmp, r, 60, "分", false, true, time.Minute);
@@ -181,21 +180,27 @@ namespace WordClock
             DrawCircle(gBmp, r, 7, (int)time.DayOfWeek);
         }
 
-        private void DrawCircle(Graphics gBmp, float r, int num, string tip)
+        private void DrawCircle(Graphics gBmp, float r, int num, string tip, float angleOffset, int curIdx)
         {
+            gBmp.ResetTransform();
+
+            //旋转角度和平移
+            Matrix mtxRotate = gBmp.Transform;
+            mtxRotate.RotateAt(angleOffset, center);
+            gBmp.Transform = mtxRotate;
+
             var offset = new SizeF(r, 0);
             var ang = 360f / num;
-            gBmp.DrawString($"{numberMap[iof % num]}{tip}", font, brushRed, center + offset, formatNear);
-
-            gBmp.ResetTransform();
+            gBmp.DrawString($"{numberMap[curIdx]}{tip}", font, brushRed, center + offset, formatNear);
+            
             for (int i = 1; i < num; i++)
             {
                 //旋转角度和平移
-                Matrix mtxRotate = gBmp.Transform;
+                mtxRotate = gBmp.Transform;
                 mtxRotate.RotateAt(ang, center);
                 gBmp.Transform = mtxRotate;
 
-                gBmp.DrawString(numberMap[(i + iof) % num], font, brush, center + offset, formatNear);
+                gBmp.DrawString(numberMap[(i + curIdx) % num], font, brush, center + offset, formatNear);
             }
         }
 
@@ -270,14 +275,12 @@ namespace WordClock
 
             numberMap[7] = ori;
         }
-
+        
         private void TimerMain_Tick(object sender, EventArgs e)
         {
             text.DrawImage(img, 0, 0);
-            var time = DateTime.Now;
 
-            var action = new Action(() => DrawToImage(time.AddSeconds(1)));
-            action.BeginInvoke(null, null);
+            new Action(() => DrawToImage(DateTime.Now.AddSeconds(1), 0)).BeginInvoke(null, null);
         }
         
         protected override void OnKeyDown(KeyEventArgs e)
