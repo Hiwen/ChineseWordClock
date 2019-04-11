@@ -168,7 +168,7 @@ namespace WordClock
 
             gBmp.FillRectangle(brushBackColor, 0, 0, Width, Height);
 
-            //gBmp.DrawString(time.ToString("HH:mm:ss"), fontClock, brush, Width / 2, Height / 2, formatCenter);
+            gBmp.DrawString(time.ToString("HH:mm:ss"), fontClock, brush, Width / 2, Height / 2, formatCenter);
             
             float r = Height / 1.5f;
             float minr = 150;
@@ -320,8 +320,8 @@ namespace WordClock
         {
             var tt = time.AddSeconds(1);
             
-            DrawToImage(img, time, -2.3f);
-            DrawToImage(img1, time, -4.6f);
+            DrawToImage(img,  tt, -2.3f);
+            DrawToImage(img1, tt, -4.6f);
             DrawToImage(img2, tt, -1f);
             DrawToImage(img3, tt, 0f);
         }
