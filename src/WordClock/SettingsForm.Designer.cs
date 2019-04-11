@@ -36,7 +36,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(609, 396);
             this.Name = "SettingsForm";
-            this.Text = "SettingsForm";
+            this.ShowIcon = false;
+            this.Text = "设置选项 - 敬请期待... ...";
             this.ResumeLayout(false);
 
         }
