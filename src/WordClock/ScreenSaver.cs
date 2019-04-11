@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -36,7 +37,10 @@ namespace WordClock
         Brush brushBackColor;
         Font font;
         Font fontClock;        
-        Bitmap img;        
+        Bitmap img;
+        Bitmap img1;
+        Bitmap img2;
+        Bitmap img3;
         Pen pen;
         StringFormat formatFar;
         StringFormat formatNear;
@@ -55,6 +59,9 @@ namespace WordClock
             font.Dispose();
             fontClock.Dispose();
             img.Dispose();
+            img1.Dispose();
+            img2.Dispose();
+            img3.Dispose();
             pen.Dispose();
 
             Close();
@@ -116,6 +123,9 @@ namespace WordClock
             fontClock = new Font("Adobe Gothic Std", 35f, FontStyle.Regular);
             
             img = new Bitmap(Width, Height);
+            img1 = new Bitmap(Width, Height);
+            img2 = new Bitmap(Width, Height);
+            img3 = new Bitmap(Width, Height);
 
             pen = new Pen(Color.Green, 3);
 
@@ -143,26 +153,26 @@ namespace WordClock
         {
             base.OnShown(e);
             var t = DateTime.Now;
-            new Action(() => DrawToImage(t, 0)).BeginInvoke(
+            new Action(() => DrawToImage(t)).BeginInvoke(
                 o =>
                 {
-                    this.Invoke(new Action(() => text.DrawImage(img, 0, 0)));
-                    new Action(() => DrawToImage(t.AddSeconds(1), 0)).BeginInvoke(null, null);
+                    this.Invoke(new Action(() => DisplayImage()));
+                    new Action(() => DrawToImage(t.AddSeconds(1))).BeginInvoke(null, null);
                 }, null);
         }
         
-        void DrawToImage(DateTime time, float angleOffset)
+
+        void DrawToImage(Bitmap img, DateTime time, float angleOffset)
         {
             Graphics gBmp = Graphics.FromImage(img);
 
             gBmp.FillRectangle(brushBackColor, 0, 0, Width, Height);
-            //在位置（150，200）处绘制文字
-            gBmp.DrawString(time.ToString("HH:mm:ss"), fontClock, brush, Width / 2, Height / 2, formatCenter);
+
+            //gBmp.DrawString(time.ToString("HH:mm:ss"), fontClock, brush, Width / 2, Height / 2, formatCenter);
             
             float r = Height / 1.5f;
             float minr = 150;
             float dr = (r - minr) / 44;
-            //gBmp.DrawLine(p1, center.X, center.Y, center.X + r, center.Y);
             iof++;
             
             r -= dr * 8;
@@ -189,14 +199,16 @@ namespace WordClock
         {
             gBmp.ResetTransform();
 
+            var offset = new SizeF(r, 0);
+            gBmp.DrawString("            " + tip, font, brushRed, center + offset, formatNear);
+
             //旋转角度和平移
             Matrix mtxRotate = gBmp.Transform;
             mtxRotate.RotateAt(angleOffset, center);
             gBmp.Transform = mtxRotate;
 
-            var offset = new SizeF(r, 0);
             var ang = 360f / num;
-            gBmp.DrawString($"{numberMap[curIdx]}{tip}", font, brushRed, center + offset, formatNear);
+            gBmp.DrawString(numberMap[curIdx], font, brushRed, center + offset, formatNear);
             
             for (int i = 1; i < num; i++)
             {
@@ -281,11 +293,43 @@ namespace WordClock
             numberMap[7] = ori;
         }
         
-        private void TimerMain_Tick(object sender, EventArgs e)
+        void DisplayImage()
         {
             text.DrawImage(img, 0, 0);
 
-            new Action(() => DrawToImage(DateTime.Now.AddSeconds(1), 0)).BeginInvoke(null, null);
+            var tsk = new Task(() =>
+            {
+                Thread.Sleep(10);
+                this.Invoke(new Action(() => text.DrawImage(img1, 0, 0)));
+            });
+            tsk.ContinueWith(t =>
+            {
+                Thread.Sleep(10);
+                this.Invoke(new Action(() => text.DrawImage(img2, 0, 0)));
+            });
+            tsk.ContinueWith(t =>
+            {
+                Thread.Sleep(30);
+                this.Invoke(new Action(() => text.DrawImage(img3, 0, 0)));
+            });
+
+            tsk.Start();
+        }
+
+        void DrawToImage(DateTime time)
+        {
+            var tt = time.AddSeconds(1);
+            
+            DrawToImage(img, time, -2.3f);
+            DrawToImage(img1, time, -4.6f);
+            DrawToImage(img2, tt, -1f);
+            DrawToImage(img3, tt, 0f);
+        }
+
+        private void TimerMain_Tick(object sender, EventArgs e)
+        {
+            DisplayImage();
+            DrawToImage(DateTime.Now);
         }
         
         protected override void OnKeyDown(KeyEventArgs e)
