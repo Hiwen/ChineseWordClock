@@ -224,42 +224,38 @@ namespace WordClock
         private void DrawCircle(Graphics gBmp, float r, int num, string tip, bool priTip, bool hasZero, int curIdx)
         {
             var offset = new SizeF(r, 0);
-            var ang = 360f / num;
-
-            int i = 0;
-            int fix = 0;
-            if (!hasZero)
-            {
-                fix = 1;
-            }
 
             var f = formatNear;
 
-            var text = $"{numberMap[(i + curIdx) % num]}{tip}";
+            var text = $"{numberMap[curIdx % num]}{tip}";
             if (priTip)
             {
-                text = $"{tip}{numberMap[(i + curIdx) % num]}";
+                text = $"{tip}{numberMap[curIdx % num]}";
                 f = formatFar;
-            }
-
-            if (text == "周七")
-            {
-                text = "周日";
             }
 
             gBmp.ResetTransform();
 
             gBmp.DrawString(text, font, brushRed, center + offset, f);
-
-            i++;
-
-            for (; i < num; i++)
+            
+            if (num > 1)
             {
-                //旋转角度和平移
-                Matrix mtxRotate = gBmp.Transform;
-                mtxRotate.RotateAt(ang, center);
-                gBmp.Transform = mtxRotate;
-                gBmp.DrawString(numberMap[(i + curIdx) % num + fix], font, brush, center + offset, formatNear);
+                var ang = 360f / num;
+                for (int i = 1; i < num; i++)
+                {
+                    //旋转角度和平移
+                    Matrix mtxRotate = gBmp.Transform;
+                    mtxRotate.RotateAt(ang, center);
+                    gBmp.Transform = mtxRotate;
+
+                    var idx = (i + curIdx) % num;
+                    if (idx == 0 && !hasZero)
+                    {
+                        idx = num;
+                    }
+
+                    gBmp.DrawString(numberMap[idx], font, brush, center + offset, formatNear);
+                }
             }
         }
 
