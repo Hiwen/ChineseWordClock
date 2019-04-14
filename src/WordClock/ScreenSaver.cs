@@ -47,6 +47,7 @@ namespace WordClock
         StringFormat formatCenter;
         PointF center;
         int iof = 0;
+        DateTime _time = DateTime.Now;
 
         void Exit()
         {
@@ -106,10 +107,19 @@ namespace WordClock
             this.BackColor = Color.Transparent;
         }
 
+        void SyncTime()
+        {
+            while (_time.Second == DateTime.Now.Second)
+            {
+            }
+
+            _time = DateTime.Now;
+        }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            SyncTime();
 
             text = this.CreateGraphics();
 
@@ -271,33 +281,35 @@ namespace WordClock
             var text = $"周{numberMap[curIdx % num]}";
 
             gBmp.ResetTransform();
-            gBmp.DrawString(text, font, brushRed, center + offset, f);
+            gBmp.DrawString(text, font, brushRed, center + offset, formatCenter);
 
-            if (num > 1)
-            {
-                var ang = 360f / num;
-                for (int i = 1; i < num; i++)
-                {
-                    //旋转角度和平移
-                    Matrix mtxRotate = gBmp.Transform;
-                    mtxRotate.RotateAt(ang, center);
-                    gBmp.Transform = mtxRotate;
+            //if (num > 1)
+            //{
+            //    var ang = 360f / num;
+            //    for (int i = 1; i < num; i++)
+            //    {
+            //        //旋转角度和平移
+            //        Matrix mtxRotate = gBmp.Transform;
+            //        mtxRotate.RotateAt(ang, center);
+            //        gBmp.Transform = mtxRotate;
 
-                    var idx = (i + curIdx) % num;
-                    if (idx == 0)
-                    {
-                        idx = num;
-                    }
+            //        var idx = (i + curIdx) % num;
+            //        if (idx == 0)
+            //        {
+            //            idx = num;
+            //        }
 
-                    gBmp.DrawString(numberMap[idx], font, brush, center + offset, formatNear);
-                }
-            }
+            //        gBmp.DrawString(numberMap[idx], font, brush, center + offset, formatNear);
+            //    }
+            //}
 
             numberMap[0] = ori;
         }
         
         void DisplayImage()
         {
+            Console.WriteLine("begin DisplayImage");
+
             text.DrawImage(img, 0, 0);
 
             var tsk = new Task(() =>
@@ -314,6 +326,7 @@ namespace WordClock
             {
                 Thread.Sleep(30);
                 this.Invoke(new Action(() => text.DrawImage(img3, 0, 0)));
+                Console.WriteLine("end DisplayImage");
             });
 
             tsk.Start();
@@ -321,18 +334,22 @@ namespace WordClock
 
         void DrawToImage(DateTime time)
         {
+            Console.WriteLine("begin DrawToImage");
+            //time = time.AddSeconds(1);
             var tt = time.AddSeconds(1);
             
-            DrawToImage(img,  tt, -2.3f);
-            DrawToImage(img1, tt, -4.6f);
-            DrawToImage(img2, tt, -1f);
+            DrawToImage(img, tt, -2.1f);
+            DrawToImage(img1, time, -4.2f);
+            DrawToImage(img2, tt, -0.3f);
             DrawToImage(img3, tt, 0f);
+            Console.WriteLine("end DrawToImage");
         }
 
         private void TimerMain_Tick(object sender, EventArgs e)
         {
             DisplayImage();
-            DrawToImage(DateTime.Now);
+            _time = _time.AddSeconds(1);
+            DrawToImage(_time);
         }
         
         protected override void OnKeyDown(KeyEventArgs e)
