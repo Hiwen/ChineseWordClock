@@ -1,5 +1,5 @@
-﻿// <copyright file="Calendar.cs" company="zondy">
-//		Copyright (c) Zondy. All rights reserved.
+﻿// <copyright file="Calendar.cs" company="Hiwen">
+//		Copyright (c) Hiwen. All rights reserved.
 // </copyright>
 // <author>WeiWenGang</author>
 // <date>2019/4/11 0:00:58</date>
@@ -122,6 +122,11 @@ namespace WordClock
             brushRed.Dispose();
             brushBackColor.Dispose();
             pen.Dispose();
+        }
+
+        protected override void PreDraw()
+        {
+            // do nothing
         }
     }
 }

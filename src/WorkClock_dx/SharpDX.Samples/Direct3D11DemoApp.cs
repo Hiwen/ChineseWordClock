@@ -29,9 +29,13 @@ namespace SharpDX.Samples
     public class Direct3D11DemoApp : DemoApp
     {
         Direct3D11.Device _device;
-        SwapChain _swapChain;
+        protected SwapChain _swapChain;
         Texture2D _backBuffer;
         RenderTargetView _backBufferView;
+
+        public int Width => _swapChain != null ? _swapChain.Description.ModeDescription.Width : -1;
+
+        public int Height => _swapChain != null ? _swapChain.Description.ModeDescription.Height : -1;
 
         /// <summary>
         /// Returns the device

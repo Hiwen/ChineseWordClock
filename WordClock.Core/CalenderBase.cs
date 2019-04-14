@@ -89,27 +89,32 @@ namespace WordClock.Core
                     Present();
 
                     // 当前帧的过渡帧2
+                    PreDraw();
                     DrawTime(Now, -4.2f);
                     Present();
 
                     var tt = Now.AddSeconds(1);
                     // 当前帧的回弹帧
+                    PreDraw();
                     DrawTime(tt, -0.3f);
                     Thread.Sleep(10);
                     Present();
 
                     // 当前帧
+                    PreDraw();
                     DrawTime(tt, 0);
                     Present();
 
                     // 下一帧的过渡帧1
+                    PreDraw();
                     DrawTime(tt, -2.1f);
 
                     // 每一帧结尾进行手动GC,保持帧稳定
                     GC.Collect();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    throw e;
                     // ignore
                 }
                 finally
@@ -140,6 +145,8 @@ namespace WordClock.Core
         {
             SyncTime();
             timerMain.Start();
+
+            PreDraw();
             DrawTime(Now, 0f);
         }
 
@@ -258,6 +265,8 @@ namespace WordClock.Core
             }
         }
 
+        public virtual float Radius => Height / 1.5f;
+
         /// <summary>
         /// 绘制指定的时间到缓存中
         /// </summary>
@@ -270,7 +279,7 @@ namespace WordClock.Core
 
             DrawClockString(DateTime.Now.ToString("dddd\nyyyy-MM-dd\nHH:mm:ss"), Width / 2, Height / 2);
 
-            float r = Height / 1.5f;
+            float r = Radius;
             float minr = 150;
             float dr = (r - minr) / 44;
 
@@ -298,5 +307,7 @@ namespace WordClock.Core
         /// 呈现缓存中的时间
         /// </summary>
         protected abstract void Present();
+
+        protected abstract void PreDraw();
     }
 }

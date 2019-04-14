@@ -61,6 +61,7 @@ namespace SharpDX.Samples
         private int _frameCount;
         private DemoConfiguration _demoConfiguration;
 
+
         /// <summary>
         ///   Performs object finalization.
         /// </summary>

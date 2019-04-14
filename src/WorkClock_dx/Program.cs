@@ -18,13 +18,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Windows.Forms;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
+using SharpDX.DXGI;
 using SharpDX.Samples;
+using SharpDX.Windows;
 using TextAntialiasMode = SharpDX.Direct2D1.TextAntialiasMode;
 
-namespace TextRenderingApp
+namespace WorkClock_dx
 {
     public class Program : Direct2D1DemoApp
     {
@@ -36,7 +39,7 @@ namespace TextRenderingApp
             base.Initialize(demoConfiguration);
 
             // Initialize a TextFormat
-            TextFormat = new TextFormat(FactoryDWrite, "宋体", 32)
+            TextFormat = new TextFormat(FactoryDWrite, "微软雅黑", 32)
             {
                 TextAlignment = TextAlignment.Center,
                 ParagraphAlignment = ParagraphAlignment.Center
@@ -44,27 +47,93 @@ namespace TextRenderingApp
 
             RenderTarget2D.TextAntialiasMode = TextAntialiasMode.Cleartype;
 
-            RenderTarget2D.Transform = Matrix3x2.Rotation(3.14f / 4, new Vector2(300, 300));
+            //RenderTarget2D.Transform = Matrix3x2.Rotation(3.14f / 4, new Vector2(300, 300));
 
             // Initialize a TextLayout
-            TextLayout = new TextLayout(FactoryDWrite, "二十三秒", TextFormat, demoConfiguration.Width, demoConfiguration.Height);
+            TextLayout = new TextLayout(FactoryDWrite, "eeeee", TextFormat, demoConfiguration.Width, demoConfiguration.Height);
+
         }
 
+        CalendarBySharpDX _calendar;
+
+        /// <summary>
+        /// Create Form for this demo.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        protected override Form CreateForm(DemoConfiguration config)
+        {
+            return new RenderForm(config.Title)
+            {
+                FormBorderStyle = FormBorderStyle.None,
+                ShowIcon = false,
+                ShowInTaskbar = false,
+                WindowState = FormWindowState.Maximized,
+                BackColor = System.Drawing.Color.Black,
+                ClientSize = new System.Drawing.Size(config.Width, config.Height)
+            };
+        }
+
+        protected override void BeginRun()
+        {
+            base.BeginRun();
+            _calendar = new CalendarBySharpDX(Width, Height, "微软雅黑",
+                RenderTarget2D, FactoryDWrite, _swapChain, Device, BackBufferView);
+
+            _calendar.OnPresent += s =>
+            {
+                // RenderTarget2D.DrawTextLayout(new Vector2(0, 0), new TextLayout(FactoryDWrite, s, TextFormat, Width, Height), SceneColorBrush, DrawTextOptions.None);
+            };
+        }
+
+        private void _calendar_OnPresent()
+        {
+            RenderTarget2D.DrawTextLayout(new Vector2(0, 0), TextLayout, SceneColorBrush, DrawTextOptions.None);
+        }
+
+        protected override void EndRun()
+        {
+            _calendar.Stop();
+            base.EndRun();
+        }
+
+        bool firstDraw = true;
 
         protected override void Draw(DemoTime time)
         {
             base.Draw(time);
 
+            if (firstDraw)
+            {
+                firstDraw = false;
+                _calendar.Start();
+            }
+
             // Draw the TextLayout
-            RenderTarget2D.DrawTextLayout(new Vector2(0, 0), TextLayout, SceneColorBrush, DrawTextOptions.None);
+            // RenderTarget2D.DrawTextLayout(new Vector2(0, 0), TextLayout, SceneColorBrush, DrawTextOptions.None);
+
+            //TextLayout.SetLocaleName("xxxxxx", new TextRange());
+            //RenderTarget2D.DrawTextLayout(new Vector2(0, 100), TextLayout, SceneColorBrush, DrawTextOptions.None);
         }
 
+        protected override void BeginDraw()
+        {
+
+        }
+
+        protected override void EndDraw()
+        {
+
+        }
 
         [STAThread]
         static void Main(string[] args)
         {
             Program program = new Program();
-            program.Run(new DemoConfiguration("SharpDX DirectWrite Text Rendering Demo"));
+
+            var bnd = Screen.PrimaryScreen.Bounds;
+
+            program.Run(new DemoConfiguration("SharpDX DirectWrite Text Rendering Demo", bnd.Width, bnd.Height));
         }
     }
 }

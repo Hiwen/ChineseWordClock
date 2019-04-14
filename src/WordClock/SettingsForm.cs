@@ -1,5 +1,5 @@
-﻿// <copyright file="SettingsForm.cs" company="zondy">
-//		Copyright (c) Zondy. All rights reserved.
+﻿// <copyright file="SettingsForm.cs" company="Hiwen">
+//		Copyright (c) Hiwen. All rights reserved.
 // </copyright>
 // <author>WeiWenGang</author>
 // <date>2019/4/10 23:00:04</date>
