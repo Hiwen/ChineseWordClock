@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -30,13 +31,13 @@ namespace WordClock
             { 55, "五十五" }, { 56, "五十六" }, { 57, "五十七" }, { 58, "五十八" }, { 59, "五十九" },
             { 60, "六十" },
         };
-        
+
         Graphics text;
         Brush brush;
         Brush brushRed;
         Brush brushBackColor;
         Font font;
-        Font fontClock;        
+        Font fontClock;
         Bitmap img;
         Bitmap img1;
         Bitmap img2;
@@ -113,13 +114,12 @@ namespace WordClock
             {
             }
 
-            _time = DateTime.Now;
+            _time = DateTime.Now.AddSeconds(-1);
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            SyncTime();
 
             text = this.CreateGraphics();
 
@@ -131,7 +131,7 @@ namespace WordClock
             //选择字体、字号、风格
             font = new Font("宋体", 18f * 96f / g.DpiX, FontStyle.Regular);
             fontClock = new Font("宋体", 35f * 96f / g.DpiX, FontStyle.Regular);
-            
+
             img = new Bitmap(Width, Height);
             img1 = new Bitmap(Width, Height);
             img2 = new Bitmap(Width, Height);
@@ -155,22 +155,11 @@ namespace WordClock
             center = new PointF(Width / 2, Height / 2);
 
             timerMain.Tick += TimerMain_Tick;
+
+            SyncTime();
+            DrawToImage(_time);
             timerMain.Start();
         }
-
-
-        protected override void OnShown(EventArgs e)
-        {
-            base.OnShown(e);
-            var t = DateTime.Now;
-            new Action(() => DrawToImage(t)).BeginInvoke(
-                o =>
-                {
-                    this.Invoke(new Action(() => DisplayImage()));
-                    new Action(() => DrawToImage(t.AddSeconds(1))).BeginInvoke(null, null);
-                }, null);
-        }
-        
 
         void DrawToImage(Bitmap img, DateTime time, float angleOffset)
         {
@@ -178,31 +167,33 @@ namespace WordClock
 
             gBmp.FillRectangle(brushBackColor, 0, 0, Width, Height);
 
-            gBmp.DrawString(time.ToString("HH:mm:ss"), fontClock, brush, Width / 2, Height / 2, formatCenter);
-            
+            gBmp.DrawString(DateTime.Now.ToString("HH:mm:ss"), fontClock, brush, Width / 2, Height / 2, formatCenter);
+
             float r = Height / 1.5f;
             float minr = 150;
             float dr = (r - minr) / 44;
             iof++;
-            
+
+            var now = DateTime.Now;
+
             r -= dr * 8;
             DrawCircle(gBmp, r, 60, "秒", angleOffset, time.Second);
 
             r -= dr * 9;
-            DrawCircle(gBmp, r, 60, "分", false, true, time.Minute);
+            DrawCircle(gBmp, r, 60, "分", false, true, now.Minute);
 
             r -= dr * 9;
-            DrawCircle(gBmp, r, 24, "时", false, true, time.Hour);
+            DrawCircle(gBmp, r, 24, "时", false, true, now.Hour);
 
-            var dayNum = DateTime.DaysInMonth(time.Year, time.Month);
+            var dayNum = DateTime.DaysInMonth(time.Year, now.Month);
             r -= dr * 8;
-            DrawCircle(gBmp, r, dayNum, "日", false, false, time.Day);
+            DrawCircle(gBmp, r, dayNum, "日", false, false, now.Day);
 
             r -= dr * 6;
-            DrawCircle(gBmp, r, 12, "月", false, false, time.Month);
+            DrawCircle(gBmp, r, 12, "月", false, false, now.Month);
 
-            r -= dr * 3;
-            DrawCircle(gBmp, r, 7, (int)time.DayOfWeek);
+            r -= dr * 4;
+            DrawCircle(gBmp, r, 7, (int)now.DayOfWeek);
         }
 
         private void DrawCircle(Graphics gBmp, float r, int num, string tip, float angleOffset, int curIdx)
@@ -210,23 +201,19 @@ namespace WordClock
             gBmp.ResetTransform();
 
             var offset = new SizeF(r, 0);
-            gBmp.DrawString("      " + tip, font, brushRed, center + offset, formatNear);
 
-            //旋转角度和平移
             Matrix mtxRotate = gBmp.Transform;
             mtxRotate.RotateAt(angleOffset, center);
             gBmp.Transform = mtxRotate;
 
             var ang = 360f / num;
-            gBmp.DrawString(numberMap[curIdx], font, brushRed, center + offset, formatNear);
-            
+            gBmp.DrawString(numberMap[curIdx] + tip, font, brushRed, center + offset, formatNear);
+
             for (int i = 1; i < num; i++)
             {
-                //旋转角度和平移
                 mtxRotate = gBmp.Transform;
                 mtxRotate.RotateAt(ang, center);
                 gBmp.Transform = mtxRotate;
-
                 gBmp.DrawString(numberMap[(i + curIdx) % num], font, brush, center + offset, formatNear);
             }
         }
@@ -247,7 +234,7 @@ namespace WordClock
             gBmp.ResetTransform();
 
             gBmp.DrawString(text, font, brushRed, center + offset, f);
-            
+
             if (num > 1)
             {
                 var ang = 360f / num;
@@ -281,7 +268,7 @@ namespace WordClock
             var text = $"周{numberMap[curIdx % num]}";
 
             gBmp.ResetTransform();
-            gBmp.DrawString(text, font, brushRed, center + offset, formatCenter);
+            gBmp.DrawString(text, font, brush, center + offset, formatCenter);
 
             //if (num > 1)
             //{
@@ -305,59 +292,66 @@ namespace WordClock
 
             numberMap[0] = ori;
         }
-        
+
+        Mutex mtx = new Mutex(false);
+
+        /// <summary>
+        /// 显示当前帧
+        /// </summary>
         void DisplayImage()
         {
-            Console.WriteLine("begin DisplayImage");
-
             text.DrawImage(img, 0, 0);
 
             var tsk = new Task(() =>
             {
+                mtx.WaitOne();
                 Thread.Sleep(10);
-                this.Invoke(new Action(() => text.DrawImage(img1, 0, 0)));
-            });
-            tsk.ContinueWith(t =>
-            {
+                text.DrawImage(img1, 0, 0);
                 Thread.Sleep(10);
-                this.Invoke(new Action(() => text.DrawImage(img2, 0, 0)));
-            });
-            tsk.ContinueWith(t =>
-            {
+                text.DrawImage(img2, 0, 0);
                 Thread.Sleep(30);
-                this.Invoke(new Action(() => text.DrawImage(img3, 0, 0)));
-                Console.WriteLine("end DisplayImage");
+                text.DrawImage(img3, 0, 0);
+                mtx.ReleaseMutex();
+
+                DrawToImage(_time);
             });
 
             tsk.Start();
         }
 
+        /// <summary>
+        /// 绘制下一帧的数据
+        /// </summary>
+        /// <param name="time"></param>
         void DrawToImage(DateTime time)
         {
-            Console.WriteLine("begin DrawToImage");
-            //time = time.AddSeconds(1);
-            var tt = time.AddSeconds(1);
-            
-            DrawToImage(img, tt, -2.1f);
+            // 当前帧的过渡帧
+            DrawToImage(img, time, -2.1f);
             DrawToImage(img1, time, -4.2f);
+
+            var tt = time.AddSeconds(1);
+            // 下一帧的回弹帧
             DrawToImage(img2, tt, -0.3f);
+            // 下一帧
             DrawToImage(img3, tt, 0f);
-            Console.WriteLine("end DrawToImage");
         }
 
         private void TimerMain_Tick(object sender, EventArgs e)
         {
-            DisplayImage();
+            if (mtx.WaitOne(1))
+            {
+                mtx.ReleaseMutex();
+                DisplayImage();
+            }
             _time = _time.AddSeconds(1);
-            DrawToImage(_time);
         }
-        
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
             Exit();
         }
-        
+
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);

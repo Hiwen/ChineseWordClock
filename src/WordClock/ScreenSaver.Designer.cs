@@ -46,6 +46,7 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "ScreenSaver";
             this.Text = "Form1";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.ResumeLayout(false);
 
         }
