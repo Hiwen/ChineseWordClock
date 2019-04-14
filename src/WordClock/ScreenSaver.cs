@@ -39,15 +39,12 @@ namespace WordClock
         Font font;
         Font fontClock;
         Bitmap img;
-        Bitmap img1;
-        Bitmap img2;
-        Bitmap img3;
-        Pen pen;
+        Graphics _gBmp;
+         Pen pen;
         StringFormat formatFar;
         StringFormat formatNear;
         StringFormat formatCenter;
         PointF center;
-        int iof = 0;
         DateTime _time = DateTime.Now;
 
         void Exit()
@@ -60,10 +57,8 @@ namespace WordClock
             brushBackColor.Dispose();
             font.Dispose();
             fontClock.Dispose();
+            _gBmp.Dispose();
             img.Dispose();
-            img1.Dispose();
-            img2.Dispose();
-            img3.Dispose();
             pen.Dispose();
 
             Close();
@@ -87,8 +82,6 @@ namespace WordClock
         /// <param name="PreviewWndHandle"></param>
         public ScreenSaver(IntPtr PreviewWndHandle) : this()
         {
-            //previewMode = true;
-
             // Set the preview window as the parent of this window
             NativeMethods.SetParent(this.Handle, PreviewWndHandle);
 
@@ -133,9 +126,7 @@ namespace WordClock
             fontClock = new Font("微软雅黑", 35f * 96f / g.DpiX, FontStyle.Regular);
 
             img = new Bitmap(Width, Height);
-            img1 = new Bitmap(Width, Height);
-            img2 = new Bitmap(Width, Height);
-            img3 = new Bitmap(Width, Height);
+            _gBmp = Graphics.FromImage(img);
 
             pen = new Pen(Color.Green, 3);
 
@@ -164,35 +155,33 @@ namespace WordClock
 
         void DrawToImage(Bitmap img, DateTime time, float angleOffset)
         {
-            Graphics gBmp = Graphics.FromImage(img);
-
-            gBmp.FillRectangle(brushBackColor, 0, 0, Width, Height);
-
-            gBmp.DrawString(DateTime.Now.ToString("dddd\nyyyy-MM-dd\nHH:mm:ss"), fontClock, brush, Width / 2, Height / 2, formatCenter);
+            _gBmp.ResetTransform();
+            _gBmp.FillRectangle(brushBackColor, 0, 0, Width, Height);
+            _gBmp.DrawString(DateTime.Now.ToString("dddd\nyyyy-MM-dd\nHH:mm:ss"), 
+                fontClock, brush, Width / 2, Height / 2, formatCenter);
 
             float r = Height / 1.5f;
             float minr = 150;
             float dr = (r - minr) / 44;
-            iof++;
 
             var now = DateTime.Now;
 
             r -= dr * 8;
             var secondPre = numberMap[time.Second].Length > 2 ? "　　　秒": "　　秒";
-            DrawCircle(gBmp, r, 60, secondPre, angleOffset, time.Second);
+            DrawCircle(_gBmp, r, 60, secondPre, angleOffset, time.Second);
 
             r -= dr * 9;
-            DrawCircle(gBmp, r, 60, "分", false, true, now.Minute);
+            DrawCircle(_gBmp, r, 60, "分", false, true, now.Minute);
 
             r -= dr * 9;
-            DrawCircle(gBmp, r, 24, "时", false, true, now.Hour);
+            DrawCircle(_gBmp, r, 24, "时", false, true, now.Hour);
 
             var dayNum = DateTime.DaysInMonth(time.Year, now.Month);
             r -= dr * 8;
-            DrawCircle(gBmp, r, dayNum, "日", false, false, now.Day);
+            DrawCircle(_gBmp, r, dayNum, "日", false, false, now.Day);
 
             r -= dr * 8;
-            DrawCircle(gBmp, r, 12, "月", false, false, now.Month);
+            DrawCircle(_gBmp, r, 12, "月", false, false, now.Month);
         }
 
         private void DrawCircle(Graphics gBmp, float r, int num, string tip, float angleOffset, int curIdx)
@@ -269,23 +258,28 @@ namespace WordClock
                 mtx.WaitOne();
                 try
                 {
+                    // 当前帧的过渡帧1(上一帧提前准备好的数据)
                     text.DrawImage(img, 0, 0);
-                    // 当前帧的过渡帧1
-                    DrawToImage(img, _time, -2.1f);
 
-                    text.DrawImage(img1, 0, 0);
                     // 当前帧的过渡帧2
-                    DrawToImage(img1, _time, -4.2f);
+                    DrawToImage(img, _time, -4.2f);
+                    text.DrawImage(img, 0, 0);
 
-                    text.DrawImage(img2, 0, 0);
                     var tt = _time.AddSeconds(1);
-                    // 下一帧的回弹帧
-                    DrawToImage(img2, tt, -0.3f);
+                    // 当前帧的回弹帧
+                    DrawToImage(img, tt, -0.3f);
+                    Thread.Sleep(10);
+                    text.DrawImage(img, 0, 0);
 
-                    Thread.Sleep(30);
-                    text.DrawImage(img3, 0, 0);
-                    // 下一帧
-                    DrawToImage(img3, tt, 0f);
+                    // 当前帧
+                    DrawToImage(img, tt, 0);
+                    text.DrawImage(img, 0, 0);
+
+                    // 下一帧的过渡帧1
+                    DrawToImage(img, tt, -2.1f);
+
+                    // 每一帧结尾进行手动GC,保持帧稳定
+                    GC.Collect();
                 }
                 catch (Exception)
                 {
