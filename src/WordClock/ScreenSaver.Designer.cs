@@ -28,13 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.timerMain = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
-            // 
-            // timerMain
-            // 
-            this.timerMain.Interval = 1000;
             // 
             // ScreenSaver
             // 
@@ -45,6 +39,8 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "ScreenSaver";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "Form1";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.ResumeLayout(false);
@@ -53,7 +49,6 @@
 
         #endregion
 
-        private System.Windows.Forms.Timer timerMain;
     }
 }
 
