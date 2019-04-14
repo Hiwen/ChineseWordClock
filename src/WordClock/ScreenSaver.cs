@@ -66,6 +66,7 @@ namespace WordClock
 
         public ScreenSaver()
         {
+            fontScale = 96f;
             InitializeComponent();
         }
 
@@ -93,6 +94,9 @@ namespace WordClock
             NativeMethods.GetClientRect(PreviewWndHandle, out ParentRect);
             Size = new Size(ParentRect.Size.Width + 1, ParentRect.Size.Height + 1);
             Location = new Point(-1, -1);
+
+            // 的屏保设置界面预览时,减小字体
+            fontScale = 48;
         }
         public ScreenSaver(bool WindowMode = false) : this()
         {
@@ -110,6 +114,8 @@ namespace WordClock
             _time = DateTime.Now.AddSeconds(-1);
         }
 
+        float fontScale;
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
@@ -122,8 +128,8 @@ namespace WordClock
             brushBackColor = new SolidBrush(Color.Black);
             var g = CreateGraphics();
             //选择字体、字号、风格
-            font = new Font("微软雅黑", 18f * 96f / g.DpiX, FontStyle.Regular);
-            fontClock = new Font("微软雅黑", 35f * 96f / g.DpiX, FontStyle.Regular);
+            font = new Font("微软雅黑", 18f * fontScale / g.DpiX, FontStyle.Regular);
+            fontClock = new Font("微软雅黑", 35f * fontScale / g.DpiX, FontStyle.Regular);
 
             img = new Bitmap(Width, Height);
             _gBmp = Graphics.FromImage(img);
