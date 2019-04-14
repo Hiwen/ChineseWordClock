@@ -54,7 +54,6 @@
         #endregion
 
         private System.Windows.Forms.Timer timerMain;
-        private System.Windows.Forms.Timer timer1;
     }
 }
 
