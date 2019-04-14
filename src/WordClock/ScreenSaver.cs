@@ -117,10 +117,10 @@ namespace WordClock
             brush = new SolidBrush(Color.FromArgb(0, 255, 255));
             brushRed = new SolidBrush(Color.FromArgb(255, 0, 0));
             brushBackColor = new SolidBrush(Color.Black);
-
+            var g = CreateGraphics();
             //选择字体、字号、风格
-            font = new Font("Adobe Gothic Std", 18f, FontStyle.Regular);
-            fontClock = new Font("Adobe Gothic Std", 35f, FontStyle.Regular);
+            font = new Font("宋体", 18f * 96f / g.DpiX, FontStyle.Regular);
+            fontClock = new Font("宋体", 35f * 96f / g.DpiX, FontStyle.Regular);
             
             img = new Bitmap(Width, Height);
             img1 = new Bitmap(Width, Height);
@@ -200,7 +200,7 @@ namespace WordClock
             gBmp.ResetTransform();
 
             var offset = new SizeF(r, 0);
-            gBmp.DrawString("            " + tip, font, brushRed, center + offset, formatNear);
+            gBmp.DrawString("      " + tip, font, brushRed, center + offset, formatNear);
 
             //旋转角度和平移
             Matrix mtxRotate = gBmp.Transform;
@@ -265,8 +265,8 @@ namespace WordClock
             var offset = new SizeF(r, 0);
 
             var f = formatFar;
-            var ori = numberMap[7];
-            numberMap[7] = "日";
+            var ori = numberMap[0];
+            numberMap[0] = "日";
 
             var text = $"周{numberMap[curIdx % num]}";
 
@@ -293,7 +293,7 @@ namespace WordClock
                 }
             }
 
-            numberMap[7] = ori;
+            numberMap[0] = ori;
         }
         
         void DisplayImage()

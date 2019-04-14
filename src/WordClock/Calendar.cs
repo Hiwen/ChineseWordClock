@@ -19,7 +19,30 @@ using System.Threading.Tasks;
 
 namespace WordClock
 {
-    public class Calendar
+    public class ClockCalendar
     {
+        float _w;
+        float _h;
+        string _fontName;
+
+        public class TextInfo
+        {
+            public float X { get; set; }
+            public float Y { get; set; }
+            public string Text { get; set; }
+            public float Angle { get; set; }
+
+        }
+
+        public Action<TextInfo> Drawer;
+
+        public ClockCalendar(float w, float h, string fontName)
+        {
+            _w = w;
+            _h = h;
+            _fontName = fontName;
+        }
+
+
     }
 }
