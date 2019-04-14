@@ -55,9 +55,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Calendar.cs" />
+    <Compile Include="Calendar4WinForm.cs" />
     <Compile Include="NativeMethods.cs" />
-    <Compile Include="SpaceCalc.cs" />
     <Compile Include="ScreenSaver.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -100,6 +99,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\WordClock.Core\WordClock.Core.csproj">
+      <Project>{bc593e80-640d-4570-90f1-ac1ca98951f0}</Project>
+      <Name>WordClock.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

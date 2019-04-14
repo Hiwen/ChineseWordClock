@@ -35,7 +35,6 @@ namespace WordClock
             InitializeComponent();
         }
 
-
         public ScreenSaver(Screen s) : this()
         {
             this.Width = s.WorkingArea.Width;
