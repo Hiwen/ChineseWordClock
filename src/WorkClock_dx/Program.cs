@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
 using System.Windows.Forms;
 using SharpDX;
 using SharpDX.Direct2D1;
@@ -108,6 +109,8 @@ namespace WorkClock_dx
                 firstDraw = false;
                 _calendar.Start();
             }
+
+            Thread.Sleep(100);
 
             // Draw the TextLayout
             // RenderTarget2D.DrawTextLayout(new Vector2(0, 0), TextLayout, SceneColorBrush, DrawTextOptions.None);
