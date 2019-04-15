@@ -95,7 +95,8 @@ namespace WorkClockByDx
 
         private void F_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode != Keys.Alt && e.KeyCode != Keys.PrintScreen && e.KeyCode != Keys.Menu)
+            if (e.KeyCode != Keys.Alt && e.KeyCode != Keys.PrintScreen &&
+                e.KeyCode != Keys.Menu && e.KeyCode != Keys.Tab)
             {
                 MyExit();
             }

@@ -42,6 +42,7 @@ namespace WordClock
         Font fontClock;
         Graphics text;
 
+        public override float Radius => Height / 1.1f;
 
         public ClockCalendar(int w, int h, int fontScale, string fontName, Graphics textt)
             : base(w, h, fontName)
