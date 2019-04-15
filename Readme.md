@@ -1,7 +1,7 @@
 # 中文版本的WorkClock
 首先向原作者致敬
 
-下载拼音上的版本来体验了一下,但是个人对于部分文字重叠的问题觉得不能忍,于是一不小心就自己写了一个!
+下载抖音上的版本来体验了一下,但是个人对于部分文字重叠的问题觉得不能忍,于是一不小心就自己写了一个!
 
 WinForm效果如下:
 ![运行效果](https://github.com/Hiwen/ChineseWordClock/raw/master/ChineseWordClock.png "运行效果")
