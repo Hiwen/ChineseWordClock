@@ -13,7 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using WordClock.Core;
 
-namespace WorkClock_dx
+namespace WorkClockByDx
 {
     public class CalendarBySharpDX : CalenderBase, IDisposable
     {
@@ -31,10 +31,14 @@ namespace WorkClock_dx
         TextLayout _tyNear;
         TextLayout _tyCenter;
         RawMatrix3x2 _oriTransform;
+        bool _preView;
+
+
+        public override float Radius => Height / (_preView ? 1f : 1.1f) ;
 
         public CalendarBySharpDX(int w, int h, string fontName,
             RenderTarget rt, SharpDX.DirectWrite.Factory fdw, SwapChain sc, 
-            SharpDX.Direct3D11.Device device, RenderTargetView backBufferView) 
+            SharpDX.Direct3D11.Device device, RenderTargetView backBufferView, bool preView) 
             : base(w,h, fontName)
         {
             _rt = rt;
@@ -42,6 +46,7 @@ namespace WorkClock_dx
             _sc = sc;
             _device = device;
             _backBufferView = backBufferView;
+            _preView = preView;
             Init();
         }
 
@@ -82,8 +87,6 @@ namespace WorkClock_dx
         {
             _rt.Clear(new SharpDX.Mathematics.Interop.RawColor4(0,0,0,0));
         }
-
-        public override float Radius => Height / 1.1f;
 
         protected override void DrawClockString(string s, float x, float y)
         {

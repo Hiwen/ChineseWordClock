@@ -293,7 +293,7 @@ namespace WordClock.Core
             DrawCircle(r, 60, "分", false, true, now.Minute);
 
             r -= dr * 9;
-            DrawCircle(r, 24, "时", false, true, now.Hour);
+            DrawCircle(r, 24, "点", false, true, now.Hour);
 
             var dayNum = DateTime.DaysInMonth(time.Year, now.Month);
             r -= dr * 8;

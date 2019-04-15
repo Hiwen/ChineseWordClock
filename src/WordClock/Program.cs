@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WordClock.Core;
 
 namespace WordClock
 {
-    static class Program
+    internal class Program : ScreenSaverBase
     {
 
         /// <summary>
@@ -29,68 +30,32 @@ namespace WordClock
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            new Program().Run(args);
+        }
 
-            if (args.Length > 0)
-            {
-                string firstArgument = args[0].ToLower().Trim();
-                string secondArgument = null;
+        protected override void Run_c()
+        {
+            var settings = new SettingsForm();
+            Application.Run(settings);
+        }
 
-                // Handle cases where arguments are separated by colon. 
-                // Examples: /c:1234567 or /P:1234567
-                if (firstArgument.Length > 2)
-                {
-                    secondArgument = firstArgument.Substring(3).Trim();
-                    firstArgument = firstArgument.Substring(0, 2);
-                }
-                else if (args.Length > 1)
-                    secondArgument = args[1];
+        protected override void Run_p(IntPtr sa)
+        {
+            Application.Run(new ScreenSaver(sa));
+        }
 
-                if (firstArgument == "/c")           // Configuration mode
-                {
-                    var settings = new SettingsForm();
-                    settings.StartPosition = FormStartPosition.CenterScreen;
-                    Application.Run(settings);
-                }
-                else if (firstArgument == "/p")      // Preview mode
-                {
-                    if (secondArgument == null)
-                    {
-                        MessageBox.Show("Sorry, but the expected window handle was not provided.",
-                            "ScreenSaver", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                        return;
-                    }
+        protected override void Run_s()
+        {
+            Application.Run(new ScreenSaver());
+        }
 
-                    IntPtr previewWndHandle = new IntPtr(long.Parse(secondArgument));
-                    Application.Run(new ScreenSaver(previewWndHandle));
-                }
-                else if (firstArgument == "/s")      // Full-screen mode
-                {
-                    //ShowScreenSaver();
-                    Application.Run(new ScreenSaver());
-                }
-                else if (firstArgument == "/w") // if executable, windowed mode.
-                {
-                    Application.Run(new ScreenSaver(WindowMode: true));
-                }
-                else    // Undefined argument
-                {
-                    MessageBox.Show("Sorry, but the command line argument \"" + firstArgument +
-                        "\" is not valid.", "ScreenSaver",
-                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                }
-            }
-            else
-            {
-                if (System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName.EndsWith("exe")) // treat like /w
-                {
-                    Application.Run(new ScreenSaver(WindowMode: true));
-                }
-                else // No arguments - treat like /c
-                {
-                    Application.Run(new SettingsForm());
-                }
-            }
-            
+        protected override void Run_w()
+        {
+            Application.Run(new ScreenSaver(WindowMode: true));
+        }
+        protected override void Run_exe()
+        {
+            Application.Run(new ScreenSaver(WindowMode: true));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace WordClock
+﻿namespace WordClock.Core
 {
     partial class SettingsForm
     {
@@ -32,9 +32,12 @@
             // 
             // SettingsForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(609, 396);
+            this.ClientSize = new System.Drawing.Size(533, 380);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "SettingsForm";
             this.ShowIcon = false;
             this.Text = "设置选项 - 敬请期待... ...";

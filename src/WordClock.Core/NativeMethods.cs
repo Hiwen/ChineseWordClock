@@ -6,9 +6,9 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace WordClock
+namespace WordClock.Core
 {
-    internal static class NativeMethods
+    public static class NativeMethods
     {
         public const int HT_CAPTION = 0x2;
         public const int WM_NCLBUTTONDOWN = 0xA1;
@@ -18,16 +18,16 @@ namespace WordClock
         public const int WM_RBUTTONUP = 0x205;
         
         [DllImport("user32.dll")]
-        internal static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+        public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
 
         [DllImport("user32.dll")]
-        internal static extern int SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+        public static extern int SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
         [DllImport("user32.dll", SetLastError = true)]
-        internal static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
         [DllImport("user32.dll")]
-        internal static extern bool GetClientRect(IntPtr hWnd, out Rectangle lpRect);
+        public static extern bool GetClientRect(IntPtr hWnd, out Rectangle lpRect);
         
         const uint ES_CONTINUOUS = 0x80000000;
         const uint ES_SYSTEM_REQUIRED = 0x00000001;

@@ -56,7 +56,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CalendarByWinForm.cs" />
-    <Compile Include="NativeMethods.cs" />
     <Compile Include="ScreenSaver.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -65,12 +64,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SettingsForm.Designer.cs">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -82,9 +75,6 @@
     </Compile>
     <EmbeddedResource Include="ScreenSaver.resx">
       <DependentUpon>ScreenSaver.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SettingsForm.resx">
-      <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
@@ -101,7 +91,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\WordClock.Core\WordClock.Core.csproj">
+    <ProjectReference Include="..\WordClock.Core\WordClock.Core.csproj">
       <Project>{bc593e80-640d-4570-90f1-ac1ca98951f0}</Project>
       <Name>WordClock.Core</Name>
     </ProjectReference>
