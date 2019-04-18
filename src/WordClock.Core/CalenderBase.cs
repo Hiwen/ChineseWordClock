@@ -267,6 +267,8 @@ namespace WordClock.Core
 
         public virtual float Radius => Height / 1.5f;
 
+        public virtual float Scale => 1f;
+
         /// <summary>
         /// 绘制指定的时间到缓存中
         /// </summary>
@@ -280,7 +282,7 @@ namespace WordClock.Core
             DrawClockString(DateTime.Now.ToString("dddd\nyyyy-MM-dd\nHH:mm:ss"), Width / 2, Height / 2);
 
             float r = Radius;
-            float minr = 150;
+            float minr = 150 * Scale;
             float dr = (r - minr) / 44;
 
             var now = DateTime.Now;

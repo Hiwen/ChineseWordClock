@@ -34,7 +34,7 @@ namespace WorkClockByDx
         bool _preView;
 
 
-        public override float Radius => Height / (_preView ? 1f : 1.1f) ;
+        public override float Radius => Height / (_preView ? 1f : 1.1f);
 
         public CalendarBySharpDX(int w, int h, string fontName,
             RenderTarget rt, SharpDX.DirectWrite.Factory fdw, SwapChain sc, 
@@ -50,6 +50,7 @@ namespace WorkClockByDx
             Init();
         }
 
+        public override float Scale => _rt.Size.Width / 1920;
 
         void Init()
         {
@@ -58,12 +59,12 @@ namespace WorkClockByDx
             brush = new SolidColorBrush(_rt, new SharpDX.Color(0, 255, 255));
             brushRed = new SolidColorBrush(_rt, SharpDX.Color.Red);
 
-            formatNear = new TextFormat(_fdw, FontName, 24)
+            formatNear = new TextFormat(_fdw, FontName, 32 * Scale)
             {
                 TextAlignment = TextAlignment.Leading,
                 ParagraphAlignment = ParagraphAlignment.Center
             };
-            formatCenter = new TextFormat(_fdw, FontName, 32)
+            formatCenter = new TextFormat(_fdw, FontName, 52 * Scale)
             {
                 TextAlignment = TextAlignment.Center,
                 ParagraphAlignment = ParagraphAlignment.Center
