@@ -52,8 +52,8 @@ namespace WordClock
             _gBmp = Graphics.FromImage(img);
 
             //选择字体、字号、风格
-            font = new Font(fontName, 18f * fontScale / textt.DpiX, FontStyle.Regular);
-            fontClock = new Font(/*"微软雅黑"*/fontName, 35f * fontScale / textt.DpiX, FontStyle.Regular);
+            font = new Font(fontName, 24f * fontScale / textt.DpiX, FontStyle.Regular);
+            fontClock = new Font(/*"微软雅黑"*/fontName, 50 * fontScale / textt.DpiX, FontStyle.Regular);
 
             //创建一个画刷，颜色是纯色
             brush = new SolidBrush(Color.FromArgb(0, 255, 255));

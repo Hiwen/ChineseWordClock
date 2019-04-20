@@ -64,7 +64,7 @@ namespace WorkClockByDx
                 TextAlignment = TextAlignment.Leading,
                 ParagraphAlignment = ParagraphAlignment.Center
             };
-            formatCenter = new TextFormat(_fdw, FontName, 52 * Scale)
+            formatCenter = new TextFormat(_fdw, FontName, 65 * Scale)
             {
                 TextAlignment = TextAlignment.Center,
                 ParagraphAlignment = ParagraphAlignment.Center

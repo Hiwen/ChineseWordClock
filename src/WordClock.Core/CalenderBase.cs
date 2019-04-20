@@ -283,7 +283,7 @@ namespace WordClock.Core
 
             float r = Radius;
             float minr = 150 * Scale;
-            float dr = (r - minr) / 44;
+            float dr = (r - minr) / 40;
 
             var now = DateTime.Now;
 
@@ -291,17 +291,17 @@ namespace WordClock.Core
             var secondPre = numberMap[time.Second].Length > 2 ? "　　　秒" : "　　秒";
             DrawCircle(r, 60, secondPre, angleOffset, time.Second);
 
-            r -= dr * 9;
+            r -= dr * 7;
             DrawCircle(r, 60, "分", false, true, now.Minute);
 
-            r -= dr * 9;
+            r -= dr * 7;
             DrawCircle(r, 24, "点", false, true, now.Hour);
 
             var dayNum = DateTime.DaysInMonth(time.Year, now.Month);
-            r -= dr * 8;
+            r -= dr * 7;
             DrawCircle(r, dayNum, "日", false, false, now.Day);
 
-            r -= dr * 8;
+            r -= dr * 7;
             DrawCircle(r, 12, "月", false, false, now.Month);
         }
 
