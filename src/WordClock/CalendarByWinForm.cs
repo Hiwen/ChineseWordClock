@@ -56,8 +56,8 @@ namespace WordClock
             fontClock = new Font(/*"微软雅黑"*/fontName, 50 * fontScale / textt.DpiX, FontStyle.Regular);
 
             //创建一个画刷，颜色是纯色
-            brush = new SolidBrush(Color.FromArgb(0, 255, 255));
-            brushRed = new SolidBrush(Color.FromArgb(255, 0, 0));
+            brush = new SolidBrush(Color.FromArgb(0, 255, 0));
+            brushRed = new SolidBrush(Color.FromArgb(255, 255, 255));
             brushBackColor = new SolidBrush(Color.Black);
 
             formatNear = new StringFormat();
